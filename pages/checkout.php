@@ -1,4 +1,9 @@
-<!-- pages/checkout.php -->
+<?php
+if (!isset($_SESSION['user_id'])) {
+  header("Location: ../login.php"); // Điều hướng về trang đăng nhập
+  exit();
+}
+?>
 <div class="container my-5">
   <h1>Checkout</h1>
   <form method="POST" action="/index.php?page=checkout">

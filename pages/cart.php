@@ -1,69 +1,78 @@
-<!-- pages/cart.php -->
-<div class="container my-5">
-  <h1>Your Cart</h1>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Total</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])): ?>
-        <?php foreach ($_SESSION['cart'] as $id => $item): ?>
-        <tr>
-          <td><?php echo $item['name']; ?></td>
-          <td>
-            <form method="POST" action="/index.php?page=cart">
-              <input type="number" name="quantity" value="<?php echo $item['quantity']; ?>" min="1" class="form-control">
-              <input type="hidden" name="product_id" value="<?php echo $id; ?>">
-              <button type="submit" class="btn btn-secondary mt-2">Update</button>
-            </form>
-          </td>
-          <td>$<?php echo $item['price']; ?></td>
-          <td>$<?php echo $item['price'] * $item['quantity']; ?></td>
-          <td>
-            <a href="/index.php?page=cart&remove=<?php echo $id; ?>" class="btn btn-danger">Remove</a>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      <?php else: ?>
-        <tr>
-          <td colspan="5">Your cart is empty.</td>
-        </tr>
-      <?php endif; ?>
-    </tbody>
-  </table>
-  
-  <div class="d-flex justify-content-between">
-    <a href="/index.php?page=products" class="btn btn-primary">Continue Shopping</a>
-    <a href="/index.php?page=checkout" class="btn btn-success">Proceed to Checkout</a>
-  </div>
-</div>
-
 <?php
-// Xử lý cập nhật giỏ hàng
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $product_id = $_POST['product_id'];
-    $quantity = $_POST['quantity'];
-    
-    if (isset($_SESSION['cart'][$product_id])) {
-        $_SESSION['cart'][$product_id]['quantity'] = $quantity;
-    }
+if (!isset($_SESSION['user_id'])) {
+  header("Location: /index.php?page=login"); // Điều hướng về trang đăng nhập
+  exit();
+}
+?>
+<?php
+require_once '../controllers/CartController.php';
+require_once '../config.php'; // Kết nối CSDL
 
-    header("Location: /index.php?page=cart");
-    exit;
+// Khởi tạo CartController
+$cartController = new CartController($conn);
+
+// Giả sử user_id được lưu trong session (để đơn giản, bạn có thể lấy user_id từ session)
+$user_id = $_SESSION['user_id'];
+
+// Lấy sản phẩm trong giỏ hàng
+$cartItems = $cartController->viewCart($user_id);
+
+// Xử lý cập nhật số lượng sản phẩm trong giỏ
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
+    $cart_id = $_POST['cart_id'];
+    $quantity = $_POST['quantity'];
+    $cartController->updateCartItem($cart_id, $quantity);
+    header("Location: cart.php");
+    exit();
 }
 
 // Xử lý xóa sản phẩm khỏi giỏ hàng
-if (isset($_GET['remove'])) {
-    $product_id = $_GET['remove'];
-    unset($_SESSION['cart'][$product_id]);
-
-    header("Location: /index.php?page=cart");
-    exit;
+if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['cart_id'])) {
+    $cart_id = $_GET['cart_id'];
+    $cartController->deleteCartItem($cart_id);
+    header("Location: cart.php");
+    exit();
 }
 ?>
+
+<h1 class="text-center mt-4">Your Cart</h1>
+
+<div class="container">
+    <?php if (!empty($cartItems)): ?>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($cartItems as $item): ?>
+                    <tr>
+                        <td>
+                            <img src="/images/<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" width="50">
+                            <?= htmlspecialchars($item['name']) ?>
+                        </td>
+                        <td>$<?= htmlspecialchars($item['price']) ?></td>
+                        <td>
+                            <form method="POST">
+                                <input type="hidden" name="cart_id" value="<?= $item['id'] ?>">
+                                <input type="number" name="quantity" value="<?= $item['quantity'] ?>" min="1">
+                                <button type="submit" name="update" class="btn btn-primary">Update</button>
+                            </form>
+                        </td>
+                        <td>$<?= htmlspecialchars($item['price'] * $item['quantity']) ?></td>
+                        <td>
+                            <a href="cart.php?action=delete&cart_id=<?= $item['id'] ?>" class="btn btn-danger">Remove</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p class="text-center">Your cart is empty.</p>
+    <?php endif; ?>
+</div>

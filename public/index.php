@@ -40,6 +40,9 @@ switch ($page) {
     case 'contact':
         include '../pages/contact.php';
         break;
+    case 'register':
+        include '../pages/register.php';
+        break;    
     default:
         include '../pages/404.php'; // Trang lỗi 404
         break;

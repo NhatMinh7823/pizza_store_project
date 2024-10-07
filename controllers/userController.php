@@ -1,19 +1,30 @@
 <?php
-session_start();
-include('../includes/config.php');
+require_once '../models/User.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $email = $_POST['email'];
-  $password = $_POST['password'];
+class UserController
+{
+  private $userModel;
 
-  // Kiểm tra người dùng trong CSDL
-  $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email AND password = :password");
-  $stmt->execute(['email' => $email, 'password' => md5($password)]);
-  
-  if ($stmt->rowCount() > 0) {
-    $_SESSION['user'] = $email;
-    header('Location: ../pages/account.php');
-  } else {
-    echo "Invalid credentials!";
+  public function __construct($db)
+  {
+    $this->userModel = new User($db);
+  }
+
+  // Xử lý đăng ký
+  public function register($name, $email, $password)
+  {
+    return $this->userModel->register($name, $email, $password);
+  }
+
+  // Xử lý đăng nhập
+  public function login($email, $password)
+  {
+    return $this->userModel->login($email, $password);
+  }
+
+  // Lấy thông tin người dùng theo ID
+  public function getUserById($id)
+  {
+    return $this->userModel->getUserById($id);
   }
 }

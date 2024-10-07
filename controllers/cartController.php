@@ -1,38 +1,37 @@
-<?php // controllers/cartController.php
-session_start();
+<?php
+require_once '../models/Cart.php';
 
-// Hàm lấy danh sách sản phẩm trong giỏ hàng
-function getCartItems() {
-  return isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
-}
+class CartController
+{
+  private $cartModel;
 
-// Thêm sản phẩm vào giỏ hàng
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $product_id = $_POST['product_id'];
-  $quantity = $_POST['quantity'];
-
-  // Lấy thông tin sản phẩm từ database
-  include('productController.php');
-  $product = getProductById($product_id);
-
-  // Thêm vào session giỏ hàng
-  if (!isset($_SESSION['cart'][$product_id])) {
-    $_SESSION['cart'][$product_id] = [
-      'id' => $product['id'],
-      'name' => $product['name'],
-      'price' => $product['price'],
-      'quantity' => $quantity
-    ];
-  } else {
-    $_SESSION['cart'][$product_id]['quantity'] += $quantity;
+  public function __construct($db)
+  {
+    $this->cartModel = new Cart($db);
   }
 
-  header('Location: ../pages/cart.php');
-}
+  // Lấy danh sách sản phẩm trong giỏ hàng
+  public function viewCart($user_id)
+  {
+    return $this->cartModel->getCartItems($user_id);
+  }
 
-// Xóa sản phẩm khỏi giỏ hàng
-if (isset($_POST['action']) && $_POST['action'] == 'remove') {
-  $product_id = $_POST['product_id'];
-  unset($_SESSION['cart'][$product_id]);
-  header('Location: ../pages/cart.php');
+  // Thêm sản phẩm vào giỏ hàng
+  public function addToCart($user_id, $product_id, $quantity)
+  {
+    return $this->cartModel->addToCart($user_id, $product_id, $quantity);
+  }
+
+  // Cập nhật số lượng sản phẩm trong giỏ hàng
+  public function updateCartItem($cart_id, $quantity)
+  {
+    return $this->cartModel->updateCartItem($cart_id, $quantity);
+  }
+
+  // Xóa sản phẩm khỏi giỏ hàng
+  public function deleteCartItem($cart_id)
+  {
+    return $this->cartModel->deleteCartItem($cart_id);
+  }
 }
+?>

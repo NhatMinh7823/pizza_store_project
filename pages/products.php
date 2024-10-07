@@ -1,10 +1,21 @@
 <?php
 require_once '../config.php';
 require_once '../controllers/ProductController.php';
+require_once '../controllers/CartController.php';
 
 // Khởi tạo đối tượng Product
 $productController = new ProductController($conn);
+$cartController = new CartController($conn);
 
+// Assume user_id is stored in the session
+$user_id = $_SESSION['user_id'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
+    $product_id = $_POST['product_id'];
+    $quantity = $_POST['quantity'];
+    $cartController->addToCart($user_id, $product_id, $quantity);
+    header("Location: /index.php?page=products"); // Redirect to avoid form resubmission on refresh
+    exit();
+}
 // Lấy tất cả danh mục sản phẩm
 $categories = $productController->getCategories();
 
@@ -20,9 +31,11 @@ $products = $productController->listProducts($category_id);
 
 <!-- Phân loại sản phẩm -->
 <div class="text-center mb-4">
-    <a href="/index.php?page=products" class="btn <?= !$category_id ? 'btn-primary' : 'btn-outline-primary' ?> m-1">All</a>
+    <a href="/index.php?page=products"
+        class="btn <?= !$category_id ? 'btn-primary' : 'btn-outline-primary' ?> m-1">All</a>
     <?php foreach ($categories as $category): ?>
-        <a href="/index.php?page=products&category_id=<?= $category['id'] ?>" class="btn <?= ($category_id == $category['id']) ? 'btn-primary' : 'btn-outline-primary' ?> m-1">
+        <a href="/index.php?page=products&category_id=<?= $category['id'] ?>"
+            class="btn <?= ($category_id == $category['id']) ? 'btn-primary' : 'btn-outline-primary' ?> m-1">
             <?= htmlspecialchars($category['name']) ?>
         </a>
     <?php endforeach; ?>
@@ -46,8 +59,12 @@ $products = $productController->listProducts($category_id);
                             </p>
                             <a href="/index.php?page=product-detail&id=<?= $product['id'] ?>" class="btn btn-primary mt-2">View
                                 Details</a>
-                            <a href="/index.php?page=cart&action=add&product_id=<?= $product['id'] ?>"
-                                class="btn btn-warning mt-2">Add to Cart</a>
+                            <form method="POST" style="display:inline;">
+                                <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                                <input type="hidden" name="quantity" value="1"> <!-- Default quantity of 1 -->
+                                <button type="submit" name="add_to_cart" class="btn btn-warning mt-2">Add to Cart</button>
+                            </form>
+
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,11 @@
 <!-- pages/product-detail.php -->
 <?php
 require_once '../config.php';
+require_once '../controllers/CartController.php';
+$cartController = new CartController($conn);
 
+// Assume user_id is stored in the session
+$user_id = $_SESSION['user_id'];
 $product_id = $_GET['id'];
 $stmt = $conn->prepare("SELECT * FROM products WHERE id = :id");
 $stmt->execute(['id' => $product_id]);
@@ -9,23 +13,7 @@ $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $quantity = $_POST['quantity'];
-
-  // Thêm vào giỏ hàng
-  if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];
-  }
-
-  if (isset($_SESSION['cart'][$product_id])) {
-    $_SESSION['cart'][$product_id]['quantity'] += $quantity;
-  } else {
-    $_SESSION['cart'][$product_id] = [
-      'id' => $product_id,
-      'name' => $product['name'],
-      'price' => $product['price'],
-      'quantity' => $quantity
-    ];
-  }
-
+  $cartController->addToCart($user_id, $product_id, $quantity);
   header("Location: /index.php?page=cart");
   exit;
 }
