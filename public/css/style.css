@@ -1,3 +1,4 @@
+
 /* Navbar Styling */
 .pizza-navbar {
     background-color: #2c3e50;
@@ -76,3 +77,19 @@
         font-size: 0.9rem;
     }
 }
+
+.btn-primary,
+.btn-warning {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #007bff;
+    box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);
+}
+
+.btn-warning:hover {
+    background-color: #e67e22;
+    box-shadow: 0 8px 16px rgba(230, 126, 34, 0.3);
+}
+
