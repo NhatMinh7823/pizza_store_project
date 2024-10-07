@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 py-3 flex justify-between items-center">
     
     <div class="flex items-center space-x-3">
-      <img src="/images/logo.png" alt="Pizza Store" class="h-12 w-12">
+      <img src="/images/logo-removebg.png" alt="Pizza Store" class="h-12 w-12">
       <a href="/index.php?page=home" class="text-2xl font-bold">Pizza Store</a>
     </div>
 
