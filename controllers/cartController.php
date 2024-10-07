@@ -34,4 +34,3 @@ class CartController
     return $this->cartModel->deleteCartItem($cart_id);
   }
 }
-?>

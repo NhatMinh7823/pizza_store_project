@@ -20,9 +20,7 @@ class Cart
     public function getCartItems($user_id)
     {
         $query = "SELECT c.id, c.quantity, p.name, p.price, p.image 
-                  FROM " . $this->table . " c
-                  JOIN products p ON c.product_id = p.id
-                  WHERE c.user_id = ?";
+                  FROM " . $this->table . " c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?";
 
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$user_id]);

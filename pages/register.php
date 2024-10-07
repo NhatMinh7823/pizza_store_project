@@ -22,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Đăng ký người dùng
         if ($userController->register($name, $email, $password)) {
             $success = "Registration successful. You can now login.";
+            header('Location: /index.php?page=login');
+            exit;
         } else {
             $error = "Registration failed. Please try again.";
         }

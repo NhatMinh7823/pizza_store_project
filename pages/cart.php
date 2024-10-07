@@ -1,7 +1,7 @@
 <?php
 if (!isset($_SESSION['user_id'])) {
-  header("Location: /index.php?page=login"); // Điều hướng về trang đăng nhập
-  exit();
+    header("Location: /index.php?page=login"); // Điều hướng về trang đăng nhập
+    exit();
 }
 ?>
 <?php
@@ -22,16 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     $cart_id = $_POST['cart_id'];
     $quantity = $_POST['quantity'];
     $cartController->updateCartItem($cart_id, $quantity);
-    header("Location: cart.php");
+    header("Location: /index.php?page=cart");
     exit();
 }
 
 // Xử lý xóa sản phẩm khỏi giỏ hàng
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['cart_id'])) {
-    $cart_id = $_GET['cart_id'];
+if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['cart_id']) && is_numeric($_GET['cart_id'])) {
+    $cart_id = (int)$_GET['cart_id']; // Ép kiểu $cart_id thành số nguyên
     $cartController->deleteCartItem($cart_id);
-    header("Location: cart.php");
+    header("Location: /index.php?page=cart");
     exit();
+} else {
+    // Nếu không hợp lệ, bạn có thể xử lý lỗi hoặc thông báo cho người dùng
+    echo "Invalid cart ID or action.";
 }
 ?>
 
@@ -66,7 +69,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['cart_i
                         </td>
                         <td>$<?= htmlspecialchars($item['price'] * $item['quantity']) ?></td>
                         <td>
-                            <a href="cart.php?action=delete&cart_id=<?= $item['id'] ?>" class="btn btn-danger">Remove</a>
+                            <form method="POST">
+                                <input type="hidden" name="cart_id" value="<?= $item['id'] ?>">
+                                <button type="submit" name="delete" class="btn btn-primary">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -1,10 +1,16 @@
 <!-- pages/product-detail.php -->
 <?php
 require_once '../config.php';
-require_once '../controllers/CartController.php';
+require_once '../controllers/cartController.php';
 $cartController = new CartController($conn);
 
 // Assume user_id is stored in the session
+if (!isset($_SESSION['user_id'])) {
+  // Nếu người dùng chưa đăng nhập, chuyển hướng họ đến trang đăng nhập
+  header('Location: /index.php?page=login');
+  exit;
+}
+
 $user_id = $_SESSION['user_id'];
 $product_id = $_GET['id'];
 $stmt = $conn->prepare("SELECT * FROM products WHERE id = :id");
