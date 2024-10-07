@@ -1,0 +1,10 @@
+# .htaccess
+# RewriteEngine On
+# RewriteRule ^products/?$ /pages/products.php [L]
+# RewriteRule ^product/([0-9]+)$ /pages/product-detail.php?id=$1 [L]
+
+Options +FollowSymLinks
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L]
